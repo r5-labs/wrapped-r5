@@ -1,0 +1,24 @@
+{
+    "name": "wrapped-r5",
+    "version": "1.0.0",
+    "description": "Wrapped R5 ERC20 token",
+    "scripts": {
+      "compile": "npx hardhat compile",
+      "test": "npx hardhat test",
+      "deploy": "npx hardhat run scripts/deploy.js --network",
+      "verify": "npx hardhat run scripts/verify.js --network"
+    },
+    "dependencies": {
+      "@openzeppelin/contracts": "^4.0.0"
+    },
+    "devDependencies": {
+      "@nomiclabs/hardhat-ethers": "^2.0.0",
+      "@nomiclabs/hardhat-etherscan": "^3.0.0",
+      "@nomiclabs/hardhat-waffle": "^2.0.0",
+      "chai": "^4.3.0",
+      "dotenv": "^8.2.0",
+      "ethers": "^5.0.0",
+      "hardhat": "^2.0.0"
+    }
+  }
+  
