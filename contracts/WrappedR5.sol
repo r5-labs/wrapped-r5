@@ -33,12 +33,42 @@ contract WrappedR5 is
         uint256 amount
     );
 
+    /// @dev Emitted when ownership transfer is initiated
+    event OwnershipTransferStarted(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
+
+    /// @dev The address pending ownership transfer
+    address private _pendingOwner;
+
     constructor()
         ERC20("Wrapped R5", "WR5")
         ERC20Permit("Wrapped R5")
         Ownable()
     {
         // owner initialized to deployer
+    }
+
+    /// @notice View the address pending to become owner
+    function pendingOwner() public view returns (address) {
+        return _pendingOwner;
+    }
+
+    /// @notice Initiate ownership transfer to a new account (`newOwner` cannot accept until this is called)
+    /// @param newOwner The address to transfer ownership to
+    function initiateOwnershipTransfer(address newOwner) external onlyOwner {
+        require(newOwner != address(0), "WrappedR5: new owner is zero address");
+        _pendingOwner = newOwner;
+        emit OwnershipTransferStarted(owner(), newOwner);
+    }
+
+    /// @notice Accept ownership transfer (must be called by pending owner)
+    function acceptOwnership() external {
+        address sender = _msgSender();
+        require(sender == _pendingOwner, "WrappedR5: caller is not the pending owner");
+        _pendingOwner = address(0);
+        _transferOwnership(sender);
     }
 
     /// @notice Mint up to the cap; only the owner can call
