@@ -22,7 +22,7 @@ contract WrappedR5 is ERC20, ERC20Burnable, ERC20Permit, Ownable, ReentrancyGuar
     constructor()
         ERC20("Wrapped R5", "WR5")
         ERC20Permit("Wrapped R5")
-        Ownable(msg.sender)
+        Ownable()
     {
         // owner initialized to deployer
     }
