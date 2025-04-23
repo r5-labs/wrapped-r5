@@ -18,7 +18,9 @@ describe("WrappedR5 functionality", function () {
   });
 
   it("reverts on exceeding cap", async function () {
-    await expect(wrapped.mint(addr1.address, CAP.add(1))).to.be.revertedWith("WrappedR5: cap exceeded");
+    await expect(
+      wrapped.mint(addr1.address, CAP.add(1))
+    ).to.be.revertedWith("WrappedR5: cap exceeded");
   });
 
   it("allows burning tokens", async function () {
@@ -53,5 +55,47 @@ describe("WrappedR5 functionality", function () {
     const { v, r, s } = ethers.utils.splitSignature(signature);
     await wrapped.permit(addr1.address, addr2.address, amt, deadline, v, r, s);
     expect(await wrapped.allowance(addr1.address, addr2.address)).to.equal(amt);
+  });
+
+  describe("ownership transfer", function () {
+    it("starts with correct owner", async function () {
+      expect(await wrapped.owner()).to.equal(owner.address);
+      expect(await wrapped.pendingOwner()).to.equal(ethers.constants.AddressZero);
+    });
+
+    it("only owner can initiate transfer", async function () {
+      await expect(
+        wrapped.connect(addr1).initiateOwnershipTransfer(addr2.address)
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+
+    it("sets pending owner correctly and emits event", async function () {
+      await expect(wrapped.initiateOwnershipTransfer(addr1.address))
+        .to.emit(wrapped, 'OwnershipTransferStarted')
+        .withArgs(owner.address, addr1.address);
+      expect(await wrapped.pendingOwner()).to.equal(addr1.address);
+    });
+
+    it("rejects zero address in initiation", async function () {
+      await expect(
+        wrapped.initiateOwnershipTransfer(ethers.constants.AddressZero)
+      ).to.be.revertedWith("WrappedR5: new owner is zero address");
+    });
+
+    it("only pending owner can accept ownership", async function () {
+      await wrapped.initiateOwnershipTransfer(addr1.address);
+      await expect(
+        wrapped.connect(addr2).acceptOwnership()
+      ).to.be.revertedWith("WrappedR5: caller is not the pending owner");
+    });
+
+    it("allows pending owner to accept and transfer ownership", async function () {
+      await wrapped.initiateOwnershipTransfer(addr1.address);
+      await expect(wrapped.connect(addr1).acceptOwnership())
+        .to.emit(wrapped, 'OwnershipTransferred')
+        .withArgs(owner.address, addr1.address);
+      expect(await wrapped.owner()).to.equal(addr1.address);
+      expect(await wrapped.pendingOwner()).to.equal(ethers.constants.AddressZero);
+    });
   });
 });
