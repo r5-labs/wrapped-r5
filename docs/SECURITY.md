@@ -12,7 +12,7 @@ This policy applies to:
 ## 3. Reporting Vulnerabilities  
 If you discover a security issue or vulnerability in any R5 component, please report it immediately via our Bug Bounty Program:
 
-🔗 **https://r5.network/bug-bounty**
+🔗 **https://docs.r5.network/bug-bounty-program**
 
 ### What to Include in Your Report  
 - A clear description of the issue and its impact  
